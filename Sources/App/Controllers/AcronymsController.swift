@@ -11,6 +11,7 @@ import Fluent
 
 
 struct AcronymsController: RouteCollection {
+    
     func boot(router: Router) throws {
         let acronymsRoute = router.grouped("api", "acronyms")
         acronymsRoute.get(use: getAllHandler)
@@ -73,6 +74,9 @@ struct AcronymsController: RouteCollection {
         guard let searchTerm = req.query[String.self, at: "term"] else {
             throw Abort(.badRequest)
         }
-        return Acronym.query(on: req).filter(\.short == searchTerm).all()
+        return Acronym.query(on: req).group(.or) { (or) in
+            or.filter(\.short == searchTerm)
+            or.filter(\.long == searchTerm)
+        }.all()
     }
 }

@@ -1,4 +1,5 @@
-import FluentSQLite
+//import FluentSQLite
+import FluentMySQL
 import Vapor
 
 final class Acronym: Codable {
@@ -13,7 +14,8 @@ final class Acronym: Codable {
         self.userID = userID
     }
 }
-extension Acronym: SQLiteModel {}
+//extension Acronym: SQLiteModel {}
+extension Acronym: MySQLModel {}
 extension Acronym: Content {}
 extension Acronym: Migration {}
 extension Acronym: Parameter {}

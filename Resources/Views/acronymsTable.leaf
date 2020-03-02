@@ -1,6 +1,6 @@
 #if(count(acronyms) > 0) {
-<table>
-<thead>
+<table class="table table-bordered table-hover">
+<thead class="thead-light">
 <tr>
 <th>Short</th>
 <th>Long</th>

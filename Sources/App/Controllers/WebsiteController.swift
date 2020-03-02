@@ -33,7 +33,7 @@ struct WebsiteController: RouteCollection {
     
     func userHandler(_ req: Request) throws -> Future<View> {
         return try req.parameters.next(User.self).flatMap(to: View.self, { user in
-            let context = try UserContext(title: user.name, user: user, acronym: user.acronyms.query(on: req).all())
+            let context = try UserContext(title: user.name, user: user, acronyms: user.acronyms.query(on: req).all())
             return try req.view().render("user", context)
         })
     }
@@ -53,6 +53,5 @@ struct AcronymContext: Encodable {
 struct UserContext: Encodable {
     let title: String
     let user: User
-    
-    let acronym: Future<[Acronym]>
+    let acronyms: Future<[Acronym]>
 }

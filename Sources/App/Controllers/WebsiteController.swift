@@ -18,6 +18,9 @@ struct WebsiteController: RouteCollection {
         router.get("categories", use: allCategoriesHandler)
         router.get("acronyms", "create", use: createAcronymHandler)
         router.post(Acronym.self, at: "acronyms", "create", use: createAcronymPostHandler)
+        router.get("acronyms", Acronym.parameter, "edit", use: editAcronymHandler)
+        router.post("acronyms", Acronym.parameter, "edit", use: editAcronymPostHandler)
+        router.post("acronyms", Acronym.parameter, "delete", use: deleteHandler)
     }
     
     func indexHandler(_ req: Request) throws -> Future<View> {
@@ -73,6 +76,35 @@ struct WebsiteController: RouteCollection {
           return req.redirect(to: "/acronyms/\(id)")
         }
     }
+    
+    func editAcronymHandler(_ req: Request) throws -> Future<View> {
+        return try flatMap(to: View.self, req.parameters.next(Acronym.self), User.query(on: req).all(), { (acronym, users) in
+            let context = EditAcronymContext(title: "Edit Acronym", acronym: acronym, users: users)
+            return try req.view().render("createAcronym", context)
+        })
+    }
+    
+    func editAcronymPostHandler(_ req: Request) throws -> Future<Response> {
+        return try req.parameters.next(Acronym.self).flatMap(to: Response.self, { (acronym) in
+            let updateAcronym = try req.content.syncDecode(Acronym.self)
+            acronym.short = updateAcronym.short
+            acronym.long = updateAcronym.long
+            acronym.userID = updateAcronym.userID
+            
+            return acronym.save(on: req).map(to: Response.self, { (savedAcronym) in
+                guard let id = acronym.id else {
+                  return req.redirect(to: "/")
+                }
+                return req.redirect(to: "/acronyms/\(id)")
+            })
+        })
+    }
+    
+    func deleteHandler(_ req: Request) throws -> Future<Response> {
+        return try req.parameters.next(Acronym.self).flatMap(to: Response.self, { (acronym) in
+            return acronym.delete(on: req).transform(to: req.redirect(to: "/"))
+        })
+    }
 }
 
 struct IndexContext: Encodable {
@@ -112,4 +144,11 @@ struct AllCategoriesContext: Encodable {
 struct CreateAcronymContext: Encodable {
     let title: String = "Create An Acronym"
     let users: Future<[User]>
+}
+
+struct EditAcronymContext: Encodable {
+    let title: String
+    let acronym: Acronym
+    let users: [User]
+    let editing: Bool = true
 }

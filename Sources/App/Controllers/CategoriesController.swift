@@ -9,12 +9,13 @@ import Foundation
 import Vapor
 
 struct CategoriesController: RouteCollection {
+    
     func boot(router: Router) throws {
-        let acronymsRoute = router.grouped("api", "categories")
-        acronymsRoute.get(use: getAllHandler)
-        acronymsRoute.post(use: createHandler)
-        acronymsRoute.get(Category.parameter, use: getHandler)
-        acronymsRoute.get(Category.parameter, "acronyms", use: getAcronymsHandler)
+        let categoriesRoutes = router.grouped("api", "categories")
+        categoriesRoutes.get(use: getAllHandler)
+        categoriesRoutes.post(use: createHandler)
+        categoriesRoutes.get(Category.parameter, use: getHandler)
+        categoriesRoutes.get(Category.parameter, "acronyms", use: getAcronymsHandler)
     }
     
     func getAllHandler(_ req: Request) throws -> Future<[Category]> {

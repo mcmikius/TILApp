@@ -72,3 +72,6 @@ extension User: TokenAuthenticatable {
     typealias TokenType = Token
     
 }
+
+extension User: PasswordAuthenticatable {}
+extension User: SessionAuthenticatable {}

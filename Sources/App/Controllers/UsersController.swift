@@ -7,6 +7,7 @@
 
 import Foundation
 import Vapor
+import Crypto
 
 struct UsersController: RouteCollection {
     func boot(router: Router) throws {
@@ -17,16 +18,17 @@ struct UsersController: RouteCollection {
         acronymsRoute.get(User.parameter, "acronyms", use: getAcronymsHandler)
     }
     
-    func getAllHandler(_ req: Request) throws -> Future<[User]> {
-        return User.query(on: req).all()
+    func getAllHandler(_ req: Request) throws -> Future<[User.Public]> {
+        return User.query(on: req).decode(data: User.Public.self).all()
     }
     
-    func createHandler(_ req: Request, user: User) throws -> Future<User> {
-        return user.save(on: req)
+    func createHandler(_ req: Request, user: User) throws -> Future<User.Public> {
+        user.password = try BCrypt.hash(user.password)
+        return user.save(on: req).convertToPublic()
     }
     
-    func getHandler(_ req: Request) throws -> Future<User> {
-        return try req.parameters.next(User.self)
+    func getHandler(_ req: Request) throws -> Future<User.Public> {
+        return try req.parameters.next(User.self).convertToPublic()
     }
     
     func getAcronymsHandler(_ req: Request) throws -> Future<[Acronym]> {

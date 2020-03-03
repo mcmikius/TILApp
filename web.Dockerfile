@@ -30,3 +30,7 @@ COPY --from=builder /build/lib/* /usr/lib/
 ENV ENVIRONMENT=$env
 
 ENTRYPOINT ./Run serve --env $ENVIRONMENT --hostname 0.0.0.0 --port 80
+
+docker stop mysql
+docker rm mysql
+docker run --name mysql -e MYSQL_USER=til -e MYSQL_PASSWORD=password -e MYSQL_DATABASE=vapor -p 3306:3306 -d mysql/mysql-server:5.7
